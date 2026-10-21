@@ -1172,8 +1172,6 @@ window.__ModuleLoader__.load({
               ),
             ),
             dayStatus === undefined ? null : h(Notice, { tone: dayStatus.tone }, dayStatus.text),
-            h('span', { className: `${PREFIX}-hint` }, text(t, 'day.multiHint')),
-            h('span', { className: `${PREFIX}-hint` }, text(t, 'day.clearHint')),
           ),
         ),
         confirmDelete
@@ -1800,8 +1798,6 @@ window.__ModuleLoader__.load({
       'month.empty': '这个月还没有记录。',
       'day.heading': '{date}（星期{week}）',
       'day.placeholder': '这一天还没有记录。',
-      'day.multiHint': '一天多笔写成多行；不动它直接保存，换行会原样保留。',
-      'day.clearHint': '把文本清空后保存，只清内容、行继续保留；要连行移除请用「删除这条」。',
       'day.unsaved': '有未保存的改动',
       'day.saving': '正在保存…',
       'day.saved': '已保存',
@@ -1931,10 +1927,6 @@ window.__ModuleLoader__.load({
       'month.empty': 'No entries this month.',
       'day.heading': '{date} ({week})',
       'day.placeholder': 'Nothing recorded for this day.',
-      'day.multiHint':
-        'Several notes in one day go on several lines; saving an untouched day keeps its line breaks byte for byte.',
-      'day.clearHint':
-        'Saving empty text only clears the content and keeps the row; use “Delete this row” to remove the row itself.',
       'day.unsaved': 'Unsaved changes',
       'day.saving': 'Saving…',
       'day.saved': 'Saved',

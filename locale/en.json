@@ -27,8 +27,6 @@
   "month.empty": "No entries this month.",
   "day.heading": "{date} ({week})",
   "day.placeholder": "Nothing recorded for this day.",
-  "day.multiHint": "Several notes in one day go on several lines; saving an untouched day keeps its line breaks byte for byte.",
-  "day.clearHint": "Saving empty text only clears the content and keeps the row; use \u201cDelete this row\u201d to remove the row itself.",
   "day.unsaved": "Unsaved changes",
   "day.saving": "Saving…",
   "day.saved": "Saved",
