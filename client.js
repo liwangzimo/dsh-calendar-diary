@@ -2,8 +2,7 @@
  * DSH plugin `dsh-calendar-diary` — browser half.
  *
  * A plain notebook. It renders a GLOBAL month panel (`sidebar.panellist` row +
- * `main` page) with a day editor, and an always-visible "today" bar above the
- * composer (`conversation.composer.dock`). It owns no data and knows no Sessions:
+ * `main` page) with a day editor. It owns no data and knows no Sessions:
  * every read and every write is one same-origin `fetch` against the HTTP routes the
  * Host half (`index.js`) registers under `/dsh-calendar-diary/`.
  *
@@ -58,7 +57,8 @@
  * - `conversation.composer.dock` options `{ name, id, order, label, inject:
  *   (sessionId) => ({...}) }` — session scope, so `inject` receives the Session id:
  *   `packages/dsh-schedule-calendar/client.js:2322-2339` (`.docs/api-spec.md` §2.4-§2.5
- *   :273-309, :330-337).
+ *   :273-309, :330-337). This plugin does NOT occupy that seat: the diary is written
+ *   from its own panel, and nothing is added above the composer.
  * - Theme tokens are `--dsw-alias-*`. Every token named in the sheet below is copied
  *   from the previous client's proven sheet
  *   (`packages/dsh-schedule-calendar/client.js:745-801`, whose header cites
@@ -83,8 +83,6 @@ window.__ModuleLoader__.load({
     const NS = 'dsh-calendar-diary';
     /** One id links the sidebar panel row to its `main` panel (`key`). */
     const PANEL_ID = 'calendar-diary';
-    /** Composer-dock entry id (the "today" bar). */
-    const TODAY_ID = 'calendar-diary-today';
     /** Prefix shared by every route the Host half registers. */
     const ROUTE_BASE = '/dsh-calendar-diary';
     /** Scoped CSS prefix: every class in the sheet below starts with this. */
@@ -449,14 +447,6 @@ window.__ModuleLoader__.load({
 .${PREFIX}-details{border-top:1px solid var(--dsw-alias-border-l1,rgba(127,127,127,.2));padding-top:6px}
 .${PREFIX}-summary{cursor:pointer;font-size:12px;color:var(--dsw-alias-label-secondary,rgba(127,127,127,.95))}
 .${PREFIX}-dialogActions{display:flex;align-items:center;justify-content:flex-end;gap:8px;flex-wrap:wrap}
-.${PREFIX}-bar{display:flex;flex-direction:column;gap:4px;padding:6px 8px;border-radius:8px;border:1px solid var(--dsw-alias-border-l1,rgba(127,127,127,.2));background:var(--dsw-alias-bg-layer-1,rgba(127,127,127,.05));color:var(--dsw-alias-label-primary,inherit);font-size:12px;line-height:18px}
-.${PREFIX}-barTop{display:flex;align-items:center;gap:6px;flex-wrap:wrap}
-.${PREFIX}-barTitle{font-weight:600}
-.${PREFIX}-barInput{flex:1 1 240px;height:26px;border-radius:6px;border:1px solid var(--dsw-alias-border-l2,rgba(127,127,127,.3));background:var(--dsw-alias-bg-layer-1,rgba(127,127,127,.06));color:var(--dsw-alias-label-primary,inherit);padding:0 8px;font:inherit;box-sizing:border-box;min-width:0}
-.${PREFIX}-barInput:focus-visible{outline:2px solid var(--dsw-alias-state-business-primary,#3d7bfd);outline-offset:1px}
-.${PREFIX}-barExisting{display:flex;gap:6px;align-items:baseline;color:var(--dsw-alias-label-tertiary,rgba(127,127,127,.85))}
-.${PREFIX}-barText{white-space:pre-wrap;overflow-wrap:anywhere;max-height:52px;overflow:auto;color:var(--dsw-alias-label-secondary,rgba(127,127,127,.95))}
-.${PREFIX}-barMsg{font-size:11px;line-height:16px}
 `;
 
     /** Install the plugin stylesheet; returns its disposer (old client.js:805-813). */
@@ -1601,128 +1591,6 @@ window.__ModuleLoader__.load({
     }
 
     // ---------------------------------------------------------------------
-    // "Today" bar (conversation.composer.dock)
-    // ---------------------------------------------------------------------
-
-    function TodayBar(props) {
-      const api = props.api;
-      const t = props.t;
-      const date = todayKey();
-      const [value, setValue] = useState('');
-      const [todayText, setTodayText] = useState(undefined);
-      const [loadError, setLoadError] = useState(undefined);
-      const [status, setStatus] = useState(undefined);
-      const [busy, setBusy] = useState(false);
-      const [confirming, setConfirming] = useState(false);
-
-      useEffect(() => {
-        let alive = true;
-        api.entries(date.slice(0, 7)).then(
-          (payload) => {
-            if (!alive) return;
-            const list =
-              payload !== undefined && payload !== null && Array.isArray(payload.entries)
-                ? payload.entries
-                : [];
-            const found = list.find((item) => item !== null && item !== undefined && item.date === date);
-            setTodayText(
-              found !== undefined && found !== null && typeof found.text === 'string' ? found.text : '',
-            );
-            setLoadError(undefined);
-          },
-          (error) => {
-            if (!alive) return;
-            setLoadError(messageOf(t, error));
-          },
-        );
-        return () => {
-          alive = false;
-        };
-      }, [api, date, t]);
-
-      const write = async (next) => {
-        setConfirming(false);
-        setBusy(true);
-        setStatus({ tone: 'info', text: text(t, 'day.saving') });
-        try {
-          await api.saveEntry(date, next);
-          setTodayText(next);
-          setValue('');
-          setStatus({ tone: 'ok', text: text(t, 'today.saved', { date }) });
-        } catch (error) {
-          setStatus({ tone: 'error', text: prefixed(t, text(t, 'error.save'), messageOf(t, error)) });
-        } finally {
-          setBusy(false);
-        }
-      };
-
-      const save = () => {
-        if (busy) return;
-        if (value.trim() === '') {
-          setStatus({ tone: 'error', text: text(t, 'today.empty') });
-          return;
-        }
-        if (typeof todayText === 'string' && todayText !== '' && todayText !== value) {
-          setConfirming(true);
-          return;
-        }
-        void write(value);
-      };
-
-      return h(
-        'div',
-        { className: `${PREFIX}-bar` },
-        h(
-          'div',
-          { className: `${PREFIX}-barTop` },
-          h('span', { className: `${PREFIX}-barTitle` }, text(t, 'today.title')),
-          h('span', { className: `${PREFIX}-hint` }, date),
-          h('input', {
-            className: `${PREFIX}-barInput`,
-            value,
-            placeholder: text(t, 'today.placeholder'),
-            'aria-label': text(t, 'today.title'),
-            onChange: (event) => setValue(event.target.value),
-            onKeyDown: (event) => {
-              if (event.key === 'Enter') {
-                event.preventDefault();
-                save();
-              }
-            },
-          }),
-          h(
-            Button,
-            { variant: 'primary', disabled: busy, onClick: save },
-            text(t, 'today.save'),
-          ),
-        ),
-        loadError === undefined
-          ? null
-          : h('span', { className: `${PREFIX}-barMsg` }, text(t, 'today.loadFailed', { detail: loadError })),
-        typeof todayText === 'string' && todayText !== ''
-          ? h(
-              'div',
-              { className: `${PREFIX}-barExisting` },
-              h('span', null, text(t, 'today.existing')),
-              h('span', { className: `${PREFIX}-barText` }, todayText),
-            )
-          : null,
-        status === undefined ? null : h('span', { className: `${PREFIX}-barMsg` }, status.text),
-        confirming
-          ? h(ConfirmDialog, {
-              t,
-              title: text(t, 'confirm.title'),
-              message: text(t, 'today.overwrite'),
-              confirmLabel: text(t, 'confirm.ok'),
-              pending: busy,
-              onConfirm: () => void write(value),
-              onCancel: () => setConfirming(false),
-            })
-          : null,
-      );
-    }
-
-    // ---------------------------------------------------------------------
     // Sidebar glyph (decorative; the sidebar owns the accessible row label)
     // ---------------------------------------------------------------------
 
@@ -1885,14 +1753,6 @@ window.__ModuleLoader__.load({
       'export.running': '正在导出…',
       'export.done': '已导出 {rows} 行，{bytes} 字节',
       'export.outPath': '文件：{path}',
-      'today.title': '今日',
-      'today.placeholder': '记一笔今天…',
-      'today.save': '保存',
-      'today.saved': '已写入 {date}',
-      'today.existing': '今日已有：',
-      'today.overwrite': '今天已经有内容了，用输入框里的文字覆盖它？',
-      'today.empty': '请先输入内容。',
-      'today.loadFailed': '读取今日内容失败：{detail}',
       'confirm.title': '确认',
       'confirm.ok': '确定',
     };
@@ -2014,14 +1874,6 @@ window.__ModuleLoader__.load({
       'export.running': 'Exporting…',
       'export.done': 'Exported {rows} rows, {bytes} bytes',
       'export.outPath': 'File: {path}',
-      'today.title': 'Today',
-      'today.placeholder': 'Add a note for today…',
-      'today.save': 'Save',
-      'today.saved': 'Written to {date}',
-      'today.existing': 'Today already has:',
-      'today.overwrite': 'Today already has text. Overwrite it with what you typed?',
-      'today.empty': 'Type something first.',
-      'today.loadFailed': "Could not read today's text: {detail}",
       'confirm.title': 'Confirm',
       'confirm.ok': 'OK',
     };
@@ -2081,20 +1933,6 @@ window.__ModuleLoader__.load({
           ),
         );
 
-        // Ambient "today" row above the composer. `inject` receives this Session's
-        // id, but this plugin never uses it: the diary is global, not per-session.
-        ctx.slots.inject('conversation.composer.dock', () =>
-          ctx.slots.register(
-            {
-              name: 'conversation.composer.dock',
-              id: TODAY_ID,
-              order: 8,
-              label: () => text(t, 'today.title'),
-              inject: (sessionId) => ({ api, t, sessionId }),
-            },
-            TodayBar,
-          ),
-        );
       },
     };
   },

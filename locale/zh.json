@@ -113,14 +113,6 @@
   "export.running": "正在导出…",
   "export.done": "已导出 {rows} 行，{bytes} 字节",
   "export.outPath": "文件：{path}",
-  "today.title": "今日",
-  "today.placeholder": "记一笔今天…",
-  "today.save": "保存",
-  "today.saved": "已写入 {date}",
-  "today.existing": "今日已有：",
-  "today.overwrite": "今天已经有内容了，用输入框里的文字覆盖它？",
-  "today.empty": "请先输入内容。",
-  "today.loadFailed": "读取今日内容失败：{detail}",
   "confirm.title": "确认",
   "confirm.ok": "确定"
 }

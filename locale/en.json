@@ -113,14 +113,6 @@
   "export.running": "Exporting…",
   "export.done": "Exported {rows} rows, {bytes} bytes",
   "export.outPath": "File: {path}",
-  "today.title": "Today",
-  "today.placeholder": "Add a note for today…",
-  "today.save": "Save",
-  "today.saved": "Written to {date}",
-  "today.existing": "Today already has:",
-  "today.overwrite": "Today already has text. Overwrite it with what you typed?",
-  "today.empty": "Type something first.",
-  "today.loadFailed": "Could not read today's text: {detail}",
   "confirm.title": "Confirm",
   "confirm.ok": "OK"
 }
