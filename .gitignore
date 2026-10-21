@@ -1,0 +1,12 @@
+# 依赖与构建产物
+node_modules/
+
+# 日记数据与备份：本插件的数据文件绝不入库
+*.xlsx
+*.xls
+*.bak-*
+*.tmp-*
+
+# 编辑器/系统
+.DS_Store
+Thumbs.db

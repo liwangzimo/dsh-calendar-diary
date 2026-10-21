@@ -1,0 +1,9 @@
+# Loader patch for this bundle: one row mounts the Host half.
+# The Host half (index.js) registers this plugin's own HTTP routes under
+# /dsh-calendar-diary/ and owns every read/write of the diary .xlsx.
+# The Client half (client.js) renders the month page and the today bar and
+# talks to those routes with same-origin fetch — it needs no Session, which is
+# why a global panel works here.
+- insert:
+    - id: calendar-diary
+      name: dsh-calendar-diary

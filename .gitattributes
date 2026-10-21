@@ -1,0 +1,7 @@
+# 仓库内一律以 LF 存储与检出，避免跨平台换行差异
+* text=auto eol=lf
+
+# 二进制/资源文件不再做换行处理
+*.xlsx binary
+*.xls  binary
+*.svg  text

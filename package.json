@@ -1,0 +1,57 @@
+{
+  "name": "dsh-calendar-diary",
+  "version": "0.1.0",
+  "description": "Calendar diary: a plain notebook. Month page plus an always-visible today bar, backed by one user-specified .xlsx in the DesktopCal two-column format. No schedule coupling.",
+  "license": "MIT",
+  "author": "liwangzimo",
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/liwangzimo/dsh-calendar-diary.git"
+  },
+  "homepage": "https://github.com/liwangzimo/dsh-calendar-diary#readme",
+  "keywords": [
+    "dsh",
+    "dsh-plugin",
+    "calendar",
+    "diary",
+    "notebook",
+    "xlsx"
+  ],
+  "type": "module",
+  "exports": {
+    ".": "./index.js",
+    "./client": "./client.js",
+    "./store": "./diary-store.js",
+    "./io": "./diary-io.js",
+    "./locale/*.json": "./locale/*.json",
+    "./icon": "./icon.svg"
+  },
+  "files": [
+    "index.js",
+    "client.js",
+    "diary-store.js",
+    "diary-io.js",
+    "cordis.patch.yml",
+    "locale/*.json",
+    "icon.svg",
+    "README.md"
+  ],
+  "dsh": {
+    "bundle": {
+      "patch": "./cordis.patch.yml"
+    },
+    "client": {
+      "platform": "web",
+      "immediately": true,
+      "inject": [
+        "@deepseek-ai/dsh-client-locale",
+        "@deepseek-ai/dsh-client-ui-conversation",
+        "@deepseek-ai/dsh-client-ui-layout",
+        "@deepseek-ai/dsh-client-ui-sidebar"
+      ]
+    }
+  },
+  "dependencies": {
+    "xlsx": "0.18.5"
+  }
+}
