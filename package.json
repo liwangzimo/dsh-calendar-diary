@@ -1,7 +1,7 @@
 {
   "name": "dsh-calendar-diary",
   "version": "0.1.0",
-  "description": "Calendar diary: a plain notebook. Month page plus an always-visible today bar, backed by one user-specified .xlsx in the DesktopCal two-column format. No schedule coupling.",
+  "description": "Calendar diary: a plain notebook. A month page in the DSH sidebar, backed by one user-specified .xlsx in the DesktopCal two-column format. No schedule coupling.",
   "license": "MIT",
   "author": "liwangzimo",
   "repository": {
